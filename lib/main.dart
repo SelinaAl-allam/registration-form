@@ -1,5 +1,5 @@
-import 'package:auth_project/OutputScreen.dart';
 import 'package:flutter/material.dart';
+import 'outputScreen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -11,6 +11,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Flutter Form Demo',
       theme: ThemeData(
         primarySwatch: Colors.blue,
@@ -29,21 +30,44 @@ class MyFormScreen extends StatefulWidget {
 
 class _MyFormScreenState extends State<MyFormScreen> {
   final _formKey = GlobalKey<FormState>();
+
   String? _username;
   String? _password;
   String? _email;
-  bool _rememberMe = false;
+  String? _fullName;
+  String? _phone;
+  String? _address;
+  String? _bio;
   String? _gender;
   String? _country;
+  String? _maritalStatus;
+  String? _university;
+  String? _specialization;
+
+  bool _rememberMe = false;
   double _age = 18;
   DateTime? _selectedDate;
 
-  final List<String> _countries = ['Palestine', 'Jordan', 'Eygpt', 'Syrya', 'Iraq'];
+  final List<String> _countries = [
+    'Palestine',
+    'Jordan',
+    'Egypt',
+    'Syria',
+    'Iraq'
+  ];
+
   final List<String> _genders = ['Male', 'Female'];
+
+  final List<String> _maritalOptions = [
+    'Single',
+    'Married',
+    'Other',
+  ];
 
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
+
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -51,9 +75,16 @@ class _MyFormScreenState extends State<MyFormScreen> {
             username: _username,
             password: _password,
             email: _email,
+            fullName: _fullName,
+            phone: _phone,
+            address: _address,
+            bio: _bio,
             rememberMe: _rememberMe,
             gender: _gender,
             country: _country,
+            maritalStatus: _maritalStatus,
+            university: _university,
+            specialization: _specialization,
             age: _age,
             selectedDate: _selectedDate,
           ),
@@ -69,11 +100,40 @@ class _MyFormScreenState extends State<MyFormScreen> {
       firstDate: DateTime(1900),
       lastDate: DateTime(2050),
     );
+
     if (picked != null && picked != _selectedDate) {
       setState(() {
         _selectedDate = picked;
       });
     }
+  }
+
+  Widget _buildTextField({
+    required String label,
+    required String hint,
+    bool obscureText = false,
+    int maxLines = 1,
+    TextInputType keyboardType = TextInputType.text,
+    required FormFieldSetter<String> onSaved,
+    required FormFieldValidator<String> validator,
+  }) {
+    return Column(
+      children: [
+        TextFormField(
+          decoration: InputDecoration(
+            labelText: label,
+            hintText: hint,
+            border: const OutlineInputBorder(),
+          ),
+          obscureText: obscureText,
+          maxLines: maxLines,
+          keyboardType: keyboardType,
+          validator: validator,
+          onSaved: onSaved,
+        ),
+        const SizedBox(height: 16),
+      ],
+    );
   }
 
   @override
@@ -83,36 +143,54 @@ class _MyFormScreenState extends State<MyFormScreen> {
         title: const Text('Flutter Form Demo'),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16),
         child: Form(
           key: _formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              TextFormField(
-                decoration: const InputDecoration(
-                  labelText: 'Username',
-                  hintText: 'Enter your username',
-                  border: OutlineInputBorder(),
+            children: [
+              const Align(
+                alignment: Alignment.topLeft,
+                child: Text(
+                  'Selina Alalam',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.blue,
+                  ),
                 ),
+              ),
+              const SizedBox(height: 20),
+
+              _buildTextField(
+                label: 'Full Name',
+                hint: 'Enter your full name',
+                onSaved: (value) => _fullName = value,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your full name';
+                  }
+                  return null;
+                },
+              ),
+
+              _buildTextField(
+                label: 'Username',
+                hint: 'Enter your username',
+                onSaved: (value) => _username = value,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter your username';
                   }
                   return null;
                 },
-                onSaved: (value) {
-                  _username = value;
-                },
               ),
-              const SizedBox(height: 16.0),
-              TextFormField(
-                decoration: const InputDecoration(
-                  labelText: 'Password',
-                  hintText: 'Enter your password',
-                  border: OutlineInputBorder(),
-                ),
+
+              _buildTextField(
+                label: 'Password',
+                hint: 'Enter your password',
                 obscureText: true,
+                onSaved: (value) => _password = value,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter your password';
@@ -122,18 +200,13 @@ class _MyFormScreenState extends State<MyFormScreen> {
                   }
                   return null;
                 },
-                onSaved: (value) {
-                  _password = value;
-                },
               ),
-              const SizedBox(height: 16.0),
-              TextFormField(
-                decoration: const InputDecoration(
-                  labelText: 'Email',
-                  hintText: 'Enter your email',
-                  border: OutlineInputBorder(),
-                ),
+
+              _buildTextField(
+                label: 'Email',
+                hint: 'Enter your email',
                 keyboardType: TextInputType.emailAddress,
+                onSaved: (value) => _email = value,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter your email';
@@ -143,11 +216,70 @@ class _MyFormScreenState extends State<MyFormScreen> {
                   }
                   return null;
                 },
-                onSaved: (value) {
-                  _email = value;
+              ),
+
+              _buildTextField(
+                label: 'Phone Number',
+                hint: 'Enter your phone number',
+                keyboardType: TextInputType.phone,
+                onSaved: (value) => _phone = value,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your phone number';
+                  }
+                  return null;
                 },
               ),
-              const SizedBox(height: 16.0),
+
+              _buildTextField(
+                label: 'Address',
+                hint: 'Enter your address',
+                onSaved: (value) => _address = value,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your address';
+                  }
+                  return null;
+                },
+              ),
+
+              _buildTextField(
+                label: 'University',
+                hint: 'Enter your university',
+                onSaved: (value) => _university = value,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your university';
+                  }
+                  return null;
+                },
+              ),
+
+              _buildTextField(
+                label: 'Specialization',
+                hint: 'Enter your specialization',
+                onSaved: (value) => _specialization = value,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your specialization';
+                  }
+                  return null;
+                },
+              ),
+
+              _buildTextField(
+                label: 'Bio',
+                hint: 'Tell us about yourself',
+                maxLines: 3,
+                onSaved: (value) => _bio = value,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your bio';
+                  }
+                  return null;
+                },
+              ),
+
               CheckboxListTile(
                 title: const Text('Remember me'),
                 value: _rememberMe,
@@ -158,44 +290,48 @@ class _MyFormScreenState extends State<MyFormScreen> {
                 },
                 controlAffinity: ListTileControlAffinity.leading,
               ),
-              const SizedBox(height: 16.0),
+              const SizedBox(height: 16),
+
               Row(
-                children: <Widget>[
+                children: [
                   const Text('Gender:'),
-                  const SizedBox(width: 10.0),
-                  ..._genders.map((gender) => Row(
-                        children: <Widget>[
-                          Radio<String>(
-                            value: gender.toLowerCase(),
-                            groupValue: _gender,
-                            onChanged: (String? value) {
-                              setState(() {
-                                _gender = value;
-                              });
-                            },
-                          ),
-                          Text(gender),
-                          const SizedBox(width: 10.0),
-                        ],
-                      )),
+                  const SizedBox(width: 10),
+                  ..._genders.map(
+                    (gender) => Row(
+                      children: [
+                        Radio<String>(
+                          value: gender,
+                          groupValue: _gender,
+                          onChanged: (String? value) {
+                            setState(() {
+                              _gender = value;
+                            });
+                          },
+                        ),
+                        Text(gender),
+                        const SizedBox(width: 10),
+                      ],
+                    ),
+                  ),
                 ],
               ),
-              const SizedBox(height: 16.0),
+              const SizedBox(height: 16),
+
               DropdownButtonFormField<String>(
                 decoration: const InputDecoration(
                   labelText: 'Country',
                   border: OutlineInputBorder(),
                 ),
                 value: _country,
-                items: _countries.map((String value) {
-                  return DropdownMenuItem<String>(
+                items: _countries.map((value) {
+                  return DropdownMenuItem(
                     value: value,
                     child: Text(value),
                   );
                 }).toList(),
-                onChanged: (String? newValue) {
+                onChanged: (value) {
                   setState(() {
-                    _country = newValue;
+                    _country = value;
                   });
                 },
                 validator: (value) {
@@ -204,14 +340,40 @@ class _MyFormScreenState extends State<MyFormScreen> {
                   }
                   return null;
                 },
-                onSaved: (value) {
-                  _country = value;
-                },
+                onSaved: (value) => _country = value,
               ),
-              const SizedBox(height: 16.0),
+              const SizedBox(height: 16),
+
+              DropdownButtonFormField<String>(
+                decoration: const InputDecoration(
+                  labelText: 'Marital Status',
+                  border: OutlineInputBorder(),
+                ),
+                value: _maritalStatus,
+                items: _maritalOptions.map((value) {
+                  return DropdownMenuItem(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  setState(() {
+                    _maritalStatus = value;
+                  });
+                },
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please select marital status';
+                  }
+                  return null;
+                },
+                onSaved: (value) => _maritalStatus = value,
+              ),
+              const SizedBox(height: 16),
+
               Row(
-                children: <Widget>[
-                  const Text('Age: '),
+                children: [
+                  const Text('Age:'),
                   Expanded(
                     child: Slider(
                       value: _age,
@@ -219,7 +381,7 @@ class _MyFormScreenState extends State<MyFormScreen> {
                       max: 99,
                       divisions: 81,
                       label: _age.round().toString(),
-                      onChanged: (double value) {
+                      onChanged: (value) {
                         setState(() {
                           _age = value;
                         });
@@ -229,7 +391,8 @@ class _MyFormScreenState extends State<MyFormScreen> {
                   Text(_age.round().toString()),
                 ],
               ),
-              const SizedBox(height: 16.0),
+              const SizedBox(height: 16),
+
               InkWell(
                 onTap: () => _selectDate(context),
                 child: InputDecorator(
@@ -239,7 +402,7 @@ class _MyFormScreenState extends State<MyFormScreen> {
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
+                    children: [
                       Text(
                         _selectedDate == null
                             ? 'No date selected'
@@ -250,10 +413,13 @@ class _MyFormScreenState extends State<MyFormScreen> {
                   ),
                 ),
               ),
-              const SizedBox(height: 24.0),
-              ElevatedButton(
-                onPressed: _submitForm,
-                child: const Text('Submit'),
+              const SizedBox(height: 24),
+
+              Center(
+                child: ElevatedButton(
+                  onPressed: _submitForm,
+                  child: const Text('Submit'),
+                ),
               ),
             ],
           ),
@@ -262,4 +428,3 @@ class _MyFormScreenState extends State<MyFormScreen> {
     );
   }
 }
-
